@@ -12,7 +12,6 @@ class SinglyLinkedList {
     this.head = head;
   }
 
-  // add one or more values, in reverse order
   add(...values) {
     for (const value of values) {
       const node = new Node(null, value);
@@ -36,7 +35,6 @@ class SinglyLinkedList {
     node.next = currentNode;
   }
 
-  // zero-based index, returns removed node's value
   remove(index) {
     let currentIndex = 0;
     let currentNode = this.head;
@@ -97,25 +95,12 @@ class SinglyLinkedList {
 
 }
 
-
-const testList = new SinglyLinkedList();
-testList.add(5);
-testList.add(10);
-testList.add(15);
-console.log('size', testList.size());
-testList.insert("hi", 1);
-console.log(testList);
-testList.reverse();
-console.log(testList);
-
-
 class DoublyLinkedList {
   constructor() {
     this.head = null;
     this.tail = null;
   }
 
-  // adds to the front of the list
   enqueue(key, value) {
     const node = new Node(key, value);
     if (this.head === null) {
@@ -152,12 +137,6 @@ class DoublyLinkedList {
     return popped;
   }
 }
-
-const double = new DoublyLinkedList();
-double.enqueue("first", 1);
-double.enqueue("second", 2);
-double.push("third", 3);
-console.log(double);
 
 class LRUCache extends DoublyLinkedList {
   constructor(maxSize = 3) {
@@ -208,14 +187,19 @@ class LRUCache extends DoublyLinkedList {
 
     this.size -= 1;
   }
-}
 
-const lru = new LRUCache();
-lru.write("first", 100);
-lru.write("second", 200);
-console.log(lru.cache);
-lru.write("third", 3);
-lru.write("fourth", 10);
-console.log(lru.read("fourth"));
-console.log(Object.keys(lru.cache));
-console.log(lru.cache);
+  clear() {
+    this.head = null;
+    this.tail = null;
+    this.cache = {};
+    this.size = 0;
+  }
+
+  *[Symbol.iterator]() {
+    let node = this.head;
+    while (node) {
+      yield node;
+      node = node.next;
+    }
+  }
+}
