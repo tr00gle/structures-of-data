@@ -14,11 +14,11 @@ class SinglyLinkedList {
 
   // add one or more values, in reverse order
   add(...values) {
-    values.forEach(value => {
+    for (const value of values) {
       const node = new Node(null, value);
       node.next = this.head;
       this.head = node;
-    });
+    }
   }
 
   insert(value, index) {
@@ -116,21 +116,106 @@ class DoublyLinkedList {
   }
 
   // adds to the front of the list
-  add(value) {
-    const node = new Node(value);
+  enqueue(key, value) {
+    const node = new Node(key, value);
+    if (this.head === null) {
+      this.head = this.tail = node;
+      return;
+    }
+    this.head.previous = node;
     node.next = this.head;
     this.head = node;
   }
 
-  size()
+  dequeue() {
+    const dequeued = this.head;
+    this.head = this.head.next;
+    this.head.previous = null;
+    return dequeued;
+  }
+
+  push(key, value) {
+    const node = new Node(key, value);
+    if (this.head === null) {
+      this.head = this.tail = node;
+      return
+    }
+    node.previous = this.tail;
+    this.tail.next = node;
+    this.tail = this.tail.next;
+  }
+
+  pop() {
+    const popped = this.tail;
+    this.tail = this.tail.previous;
+    this.tail.next = null;
+    return popped;
+  }
 }
 
-// class LRUCache {
-//   constructor(maxSize = 12) {
-//     this.head = null;
-//     this.tail = null;
-//     this.currentSize = null;
-//     this.maxSize = maxSize;
-//     this.cache = {};
-//   }
-// }
+const double = new DoublyLinkedList();
+double.enqueue("first", 1);
+double.enqueue("second", 2);
+double.push("third", 3);
+console.log(double);
+
+class LRUCache extends DoublyLinkedList {
+  constructor(maxSize = 3) {
+    super();
+    this.maxSize = maxSize;
+    this.size = 0;
+    this.cache = {};
+  }
+
+  write(key, value) {
+    if (this.size === this.maxSize) {
+      const popped = this.pop();
+      delete this.cache[popped.key];
+      this.size -= 1;
+    }
+
+    this.enqueue(key, value);
+    this.cache[key] = this.head;
+    this.size += 1;
+  }
+
+  read(key) {
+    if (this.cache[key]) {
+      const value = this.cache[key].value;
+      this.remove(key);
+      delete this.cache[key];
+      this.write(key, value);
+      return value;
+    }
+
+    throw new ReferenceError("This key is not currently cached.");
+  }
+
+  remove(key) {
+    const node = this.cache[key];
+
+    if (node.previous !== null) {
+      node.previous.next = node.next;
+    } else {
+      this.head = node.next;
+    }
+
+    if (node.next !== null) {
+      node.next.previous = node.previous;
+    } else {
+      this.tail = node.previous;
+    }
+
+    this.size -= 1;
+  }
+}
+
+const lru = new LRUCache();
+lru.write("first", 100);
+lru.write("second", 200);
+console.log(lru.cache);
+lru.write("third", 3);
+lru.write("fourth", 10);
+console.log(lru.read("fourth"));
+console.log(Object.keys(lru.cache));
+console.log(lru.cache);
